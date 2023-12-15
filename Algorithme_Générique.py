@@ -27,7 +27,7 @@ def haversine_distance(point1, point2):
     dlon = lon2 - lon1
     
     # Formule haversine
-    a = sin(dlat/2)*2 + cos(lat1) * cos(lat2) * sin(dlon/2)*2
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
     c = 2 * asin(sqrt(a))
     r = 6371  # Rayon moyen de la Terre en kilomètres
     distance = r * c
