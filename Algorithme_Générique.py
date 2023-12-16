@@ -116,7 +116,7 @@ def creer_guesses_reidentification(Semaines, id_set,chemin_dossierOrig, chemin_d
 
 def generer_fichier_json(guesses, json_file):
     with open(json_file, 'w') as f:
-        json.dump(guesses, f)
+        json.dump(guesses, f,indent=4)
 
 if __name__ == "__main__":
     #Les chemins
