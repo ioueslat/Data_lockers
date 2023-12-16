@@ -54,7 +54,7 @@ def sauvegarder_fichiers_par_semaine(df_orig, df_ano, Semaines, chemin_dossierOr
         df_ano[df_ano['Semaine'] == semaine].to_csv(f'{chemin_dossierAno}/Semaine_{semaine}.csv', header=False, index=False, sep='\t')
 
         
-def creer_guesses_reidentification(Semaines, id_set):
+def creer_guesses_reidentification(Semaines, id_set,chemin_dossierOrig, chemin_dossierAno):
     guesses = {}
 
     for id in id_set:
@@ -62,8 +62,8 @@ def creer_guesses_reidentification(Semaines, id_set):
     
     for semaine in Semaines:
         
-        df_orig_Sem = pd.read_csv(f'./fichiers_orig/Semaine{semaine}.csv', sep='\t', names=["Id", "date", "latitude", "longitude", "semaine"]).set_index('date')
-        df_ano_Sem = pd.read_csv(f'./fichiers_ano/Semaine{semaine}.csv', sep='\t', names=["Id_Ano", "date", "latitude", "longitude", "semaine"]).set_index('date')
+        df_orig_Sem = pd.read_csv(f'{chemin_dossierOrig}/Semaine{semaine}.csv', sep='\t', names=["Id", "date", "latitude", "longitude", "semaine"]).set_index('date')
+        df_ano_Sem = pd.read_csv(f'{chemin_dossierAno}/Semaine{semaine}.csv', sep='\t', names=["Id_Ano", "date", "latitude", "longitude", "semaine"]).set_index('date')
         #calcule de différence des lignes 
         diff_lignes_Del = len(df_orig_Sem) - len(df_ano_Sem)
         
@@ -137,4 +137,4 @@ if __name__ == "__main__":
     df_originale = df_originale.drop(columns=['semaine'])
     df_anonym = df_anonym.drop(columns=['semaine'])
     #Création de suppositions pour la réidentification des individus : 
-    guesses = creer_guesses_reidentification(semaines, ids)
+    guesses = creer_guesses_reidentification(semaines, ids,orig_folder_path,anon_folder_path)
