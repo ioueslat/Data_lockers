@@ -1,14 +1,28 @@
 import pandas as pd
-import hashlib
 import numpy as np
+import hashlib
 import random
 
-#code hachage
+def creer_dataframe_de_fichier(nom_fichier):
+    try:
+        dataframe = pd.read_csv(nom_fichier, delimiter='\t', header=None, names=['id', 'Date', 'longitude', 'latitude'],dtype={'longitude': 'object', 'latitude': 'object'})
+        dataframe['Date'] = pd.to_datetime(dataframe['Date'])
+        dataframe = dataframe.astype({'longitude': 'float64', 'latitude': 'float64'})
+        dataframe['semaine'] = dataframe['Date'].dt.strftime('%Y-%U')
+        return dataframe
+    except FileNotFoundError:
+        print("Le fichier spécifié est introuvable.")
+        return None
+    except Exception as e:
+        print(f"Une erreur s'est produite : {e}")
+        return None
+
 def hash_dataframe(dataframe):
     dataframe['Date'] = pd.to_datetime(dataframe['Date'])
-    dataframe['id'] = [hashlib.md5(f"{id_}{semaine}".encode()).hexdigest()[:8] if id_ != 'DEL' else 'DEL' for id_, semaine in zip(dataframe['id'], dataframe['Date'].dt.strftime('%Y-%U'))] 
-    print(dataframe.head())
+    dataframe['id'] = [hashlib.md5(f"{id_}{semaine}".encode()).hexdigest()[:8] if id_ != 'DEL' else 'DEL' for id_, semaine in zip(dataframe['id'], dataframe['Date'].dt.strftime('%Y-%U'))]
     return dataframe
+
+
 
 #code pertubation
 def pertubation(dataframe):
@@ -19,7 +33,8 @@ def pertubation(dataframe):
     
     return dataframe
 
-#pertubation jours
+#pertubation jours:
+
 def perturber_jours_semaine(dataframe):
     if 'Date' in dataframe.columns:
         dataframe['Date'] = pd.to_datetime(dataframe['Date'])
@@ -42,6 +57,7 @@ def perturber_jours_semaine(dataframe):
     return dataframe
 
 #perturbation heures
+
 def perturber_heures(dataframe):
     for index, row in dataframe.iterrows():
         heure = row['Date'].hour
@@ -127,11 +143,14 @@ def perturber_heures(dataframe):
 
 
 def suppression_lignes(dataframe, pt, size):
+
     dataframe_copy = dataframe.copy()
     dataframe['latitude_arrondie'] = dataframe['latitude'].round(size)
     dataframe['longitude_arrondie'] = dataframe['longitude'].round(size)
+    print("colonne latitude et longitutde arrondie ajoute")
     dataframe_copy['latitude'] = dataframe_copy['latitude'].round(size)
     dataframe_copy['longitude'] = dataframe_copy['longitude'].round(size)
+    print("arrondi dans dataframe copy mrigl")
     grouped = dataframe_copy.groupby(['latitude', 'longitude']).size().reset_index(name='count')
     grouped = grouped.sort_values(by='count', ascending=False)
     print(grouped)
@@ -140,7 +159,6 @@ def suppression_lignes(dataframe, pt, size):
     print(filtered_data)
     less_frequent_cells = grouped.tail(len(grouped) - nb_cellules)
     print(less_frequent_cells)
-
     n = 1000
     lines_to_delete = random.sample(range(len(less_frequent_cells)), min(n, len(less_frequent_cells)))
 
@@ -159,3 +177,13 @@ def suppression_lignes(dataframe, pt, size):
     dataframe.to_csv('dataframe_modifie.csv', index=False)  
 
     return dataframe
+
+def supp_sep(df):
+    df.loc[df.index % 3 ==0,'id'] = "DEL"
+    return df
+
+def modify(df):
+    df[df['id'] == 'DEL', 'date'] = '2015-03-09 16:50:00'
+    df.loc[['id'] == 'DEL', 'longitude'] = 4.370238
+    df.loc[df['id'] == 'DEL', 'latitude'] = 48.870171
+    return df
